@@ -14,7 +14,7 @@
         android:layout_marginLeft="80dp"
         android:layout_marginBottom="128dp"
         android:onClick="getAllObjects"
-        android:text="draw graph"
+        android:text="Draw graph"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.333"
