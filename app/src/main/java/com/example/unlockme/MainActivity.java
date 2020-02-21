@@ -1,15 +1,26 @@
 package com.example.unlockme;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.PictureDrawable;
 
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -32,9 +43,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.os.Environment.getExternalStoragePublicDirectory;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 
@@ -99,8 +117,29 @@ public class MainActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             ImageView imageView = (ImageView) findViewById(R.id.imageView);
-            imageView.setImageBitmap(imageBitmap);
-            this.bitmap = imageBitmap;
+
+            if (imageBitmap != null) {
+                String s = saveToInternalStorage(imageBitmap);
+                this.bitmap = MainActivity.RotateBitmap(imageBitmap, 90);
+
+                if (isWriteStoragePermissionGranted()) {
+                    // galleryAddPic();
+
+                }
+                 //galleryAddPic(imageBitmap, "jpeg" + imagename);
+
+//                String s = saveToInternalStorage(imageBitmap);
+//
+//                if (s != null) {
+//                    Log.d("path", s);
+//                } else {
+//                    Log.d("null", "null");
+//                }
+            }
+
+//                    this.bitmap = MainActivity.RotateBitmap(imageBitmap, 90);
+
+            imageView.setImageBitmap(this.bitmap);
         }
     }
 
@@ -242,5 +281,123 @@ public class MainActivity extends AppCompatActivity {
         String id = editText.getText().toString();
         intent.putExtra(EXTRA_ID, id);
         startActivity(intent);
+    }
+
+    public static Bitmap RotateBitmap(Bitmap img, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
+    }
+
+    public static Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
+
+        ExifInterface ei = new ExifInterface(selectedImage.getPath());
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        Log.d("MYINT", "value: " + orientation);
+        Log.d("MYINTNORMAL", "value: " + ExifInterface.ORIENTATION_ROTATE_90);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return MainActivity.RotateBitmap(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return MainActivity.RotateBitmap(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return MainActivity.RotateBitmap(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private String saveToInternalStorage(Bitmap bitmapImage){
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        long image_name = System.currentTimeMillis();
+        File file = new File(directory, "Image-"+ image_name + ".jpg");
+
+        if (!file.exists()) {
+            Log.d("path", file.toString());
+
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(file);
+                bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.flush();
+                fos.close();
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
+    private void galleryAddPic() {
+//        String root = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString();
+//        Log.d("root", root);
+//        File myDir = new File(root);
+//        myDir.mkdirs();
+        long image_name = System.currentTimeMillis();
+        String fname = "Image-" + image_name + ".jpg";
+//        File file = new File(myDir, fname);
+//        if (file.exists()) file.delete();
+//        Log.i("LOAD", root + fname);
+//        try {
+//            FileOutputStream out = new FileOutputStream(file);
+//            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+//            out.flush();
+//            out.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        MediaStore.Images.Media.insertImage(getContentResolver(), this.bitmap, fname , "unlockme app");
+    }
+
+    public  boolean isWriteStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("log tag", "Permission is granted2");
+                return true;
+            } else {
+
+                Log.v("log tag", "Permission is revoked2");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("log tag", "Permission is granted2");
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 2:
+                Log.d("log tag", "External storage2");
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    Log.v("log tag","Permission: " + permissions[0] + "was " + grantResults[0]);
+                    //resume tasks needing this permission
+                    //downloadPdfFile();
+                    galleryAddPic();
+
+                } else {
+
+                }
+                break;
+
+            case 3:
+                Log.d("log tag", "External storage1");
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    Log.v("log tag","Permission: " + permissions[0] + "was " + grantResults[0]);
+                    //resume tasks needing this permission
+
+                } else {
+                }
+                break;
+        }
     }
 }

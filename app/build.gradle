@@ -35,7 +35,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation 'com.caverock:androidsvg-aar:1.4'
-
 }
 repositories {
     mavenCentral()
