@@ -17,7 +17,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ImageSlider"></activity>
+        <activity
+            android:name=".BarcodesActivity"
+            android:label="@string/title_activity_barcodes"></activity>
+        <activity android:name=".ImageSlider" />
         <activity
             android:name=".Images"
             android:parentActivityName=".MainActivity">
@@ -32,7 +35,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

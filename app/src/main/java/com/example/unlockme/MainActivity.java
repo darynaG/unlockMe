@@ -48,6 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE = "com.example.unlockme.MESSAGE";
     public static final String EXTRA_ID = "com.example.unlockme.ID";
+    public static final String EXTRA_URL = "com.example.unlockme.URL";
+    //public static final ArrayList<String> URLS = "com.example.unlockme.URLS";
 
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -263,6 +266,58 @@ public class MainActivity extends AppCompatActivity {
         queue.add(volleyMultipartRequest);
     }
 
+    private void getLinksToBarcodes(final Bitmap bitmap) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final String url ="https://incenter.pythonanywhere.com/api/barcode";
+        final Intent intent = new Intent(this, ImageSlider.class);
+
+        VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, url,
+                new Response.Listener<NetworkResponse>() {
+                    @Override
+                    public void onResponse(NetworkResponse response) {
+                        try {
+                            ArrayList<String> urls = new ArrayList<String>();
+                            JSONObject obj = new JSONObject(new String(response.data));
+                            urls.add(obj.getString("barcode1"));
+                            urls.add(obj.getString("barcode2"));
+                            urls.add(obj.getString("processed img"));
+
+                            Bundle bundle = new Bundle();
+
+                            bundle.putStringArrayList("urls", urls);
+                            bundle.putBoolean("is_barcode", true);
+                            bundle.putString("image_type", "svg");
+
+                            intent.putExtras(bundle);
+
+                            // intent.putExtra(EXTRA_MESSAGE, urls);
+                            startActivity(intent);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                        Log.e("GotError",""+error.getMessage());
+                    }
+                }) {
+            @Override
+            protected Map<String, DataPart> getByteData() {
+                Map<String, DataPart> params = new HashMap<>();
+                long imagename = System.currentTimeMillis();
+                params.put("file", new DataPart(imagename + ".png", getFileDataFromDrawable(bitmap)));
+                return params;
+            }
+        };
+
+        //adding the request to volley
+        queue.add(volleyMultipartRequest);
+    }
+
     public byte[] getFileDataFromDrawable(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 80, byteArrayOutputStream);
@@ -279,8 +334,30 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.editText);
 
         String id = editText.getText().toString();
-        intent.putExtra(EXTRA_ID, id);
+        String url = "https://incenter.pythonanywhere.com/api/account/" + id + "/images";
+        Log.println(Log.DEBUG, "URL", url);
+
+        Bundle bundle = new Bundle();
+
+        bundle.putBoolean("is_barcode", false);
+        bundle.putString("id", id);
+        bundle.putString("url", url);
+        bundle.putString("image_type", "png");
+        intent.putExtras(bundle);
+
         startActivity(intent);
+    }
+
+    public void openSliderWithBarcodes(View view) {
+        getLinksToBarcodes(this.bitmap);
+//        final Intent intent = new Intent(this, ImageSlider.class);
+//        EditText editText = (EditText) findViewById(R.id.editText);
+//
+//        String id = editText.getText().toString();
+//        String url = "https://incenter.pythonanywhere.com/api/account/" + id + "/images";
+//        intent.putExtra(EXTRA_ID, id);
+//        intent.putExtra(EXTRA_URL, url);
+//        startActivity(intent);
     }
 
     public static Bitmap RotateBitmap(Bitmap img, float angle)
@@ -399,5 +476,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    public void showBarcodeImagesView(View view) {
+        final Intent intent = new Intent(this, Images.class);
+        intent.putExtra(EXTRA_MESSAGE, "user");
+        startActivity(intent);
     }
 }
