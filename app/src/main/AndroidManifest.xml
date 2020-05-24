@@ -17,9 +17,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".LoginWithPhotoActivity"></activity>
+
+        <activity android:name=".TakePhotoActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:label="@string/title_activity_login" />
+        <activity android:name=".cardViewPager" />
+        <activity android:name=".firstPage">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".BarcodesActivity"
-            android:label="@string/title_activity_barcodes"></activity>
+            android:label="@string/title_activity_barcodes" />
         <activity android:name=".ImageSlider" />
         <activity
             android:name=".Images"
@@ -28,13 +44,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:parentActivityName=".firstPage" />
     </application>
 
 </manifest>
