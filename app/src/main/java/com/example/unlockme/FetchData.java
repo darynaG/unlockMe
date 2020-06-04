@@ -31,6 +31,8 @@ public class FetchData extends AsyncTask {
     HttpURLConnection urlConnection;
     String url;
     FetchDataCallbackInterface callbackInterface;
+    public final static String BASE_URL = BuildConfig.BASE_URL;
+
     /**
      * Constructor
      * @param url
@@ -59,7 +61,7 @@ public class FetchData extends AsyncTask {
 //        }
 //        return result.toString();
 
-        final String url ="https://incenter.pythonanywhere.com/api/account/" + '1' + "/images";
+        final String url = BASE_URL + "/api/account/" + '1' + "/images";
         final ArrayList<String> imageUrls = new ArrayList<String>();
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override

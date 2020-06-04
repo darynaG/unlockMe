@@ -31,6 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.unlockme.MainActivity.BASE_URL;
 import static com.example.unlockme.MainActivity.EXTRA_ID;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -51,7 +52,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void register(View view) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://incenter.pythonanywhere.com/api/accounts";
+        String url = BASE_URL + "/api/accounts";
+
         final Intent intent = new Intent(this, TakePhotoActivity.class);
         final JSONObject jsonObject = new JSONObject();
         try {
@@ -84,6 +86,34 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                         Log.d("Error.Response", error.toString());
+                        if (error.networkResponse != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
         ) {

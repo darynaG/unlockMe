@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    public final static String BASE_URL = BuildConfig.BASE_URL;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void uploadBitmap(final Bitmap bitmap, final String user) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://incenter.pythonanywhere.com/api/accounts?user=" + user;
+        String url =BASE_URL + "/api/accounts?user=" + user;
         final Intent intent = new Intent(this, ImageSlider.class);
 
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, url,
@@ -209,8 +211,34 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }                        Log.e("GotError",""+error.getMessage());
                     }
                 }) {
                     @Override
@@ -228,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void uploadImage(final Bitmap bitmap) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://incenter.pythonanywhere.com/api/image";
+        final String url = BASE_URL + "/api/image";
         final Intent intent = new Intent(this, Images.class);
 
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, url,
@@ -249,8 +277,34 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }                        Log.e("GotError",""+error.getMessage());
                     }
                 }) {
             @Override
@@ -268,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getLinksToBarcodes(final Bitmap bitmap) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://incenter.pythonanywhere.com/api/barcode";
+        final String url = BASE_URL + "/api/barcode";
         final Intent intent = new Intent(this, ImageSlider.class);
 
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, url,
@@ -301,8 +355,34 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }                        Log.e("GotError",""+error.getMessage());
                     }
                 }) {
             @Override
@@ -334,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.editText);
 
         String id = editText.getText().toString();
-        String url = "https://incenter.pythonanywhere.com/api/account/" + id + "/images";
+        String url = BASE_URL + "/api/account/" + id + "/images";
         Log.println(Log.DEBUG, "URL", url);
 
         Bundle bundle = new Bundle();
@@ -364,9 +444,7 @@ public class MainActivity extends AppCompatActivity {
     {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-        return rotatedImg;
+        return Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
     }
 
     public static Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {

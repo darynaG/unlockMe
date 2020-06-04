@@ -55,8 +55,6 @@ public class Images extends AppCompatActivity {
     public void getAllObjects(View view) {
 
         final Intent intent = new Intent(this, BarcodesActivity.class);
-
-        intent.putExtra(EXTRA_MESSAGE, "Dana");
         startActivity(intent);
     }
 

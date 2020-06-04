@@ -4,7 +4,9 @@
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true" />
+        android:required="true"
+        android:configChanges="orientation"
+        android:screenOrientation="portrait"/>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -17,9 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RegisterActivity"></activity>
-        <activity android:name=".LoginWithPhotoActivity"></activity>
-
+        <activity android:name=".LearnTopicActivity"></activity>
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".LoginWithPhotoActivity" />
         <activity android:name=".TakePhotoActivity" />
         <activity android:name=".ProfileActivity" />
         <activity

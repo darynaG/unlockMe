@@ -8,12 +8,11 @@
     android:paddingTop="?attr/actionBarSize">
 
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/barcodeImage"
         android:layout_width="365dp"
         android:layout_height="286dp"
         android:paddingStart="18.7dp"
         android:paddingLeft="18.7dp"
-        android:src="@drawable/brightest_parts"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,7 +25,7 @@
         android:id="@+id/textView"
         android:layout_width="285dp"
         android:layout_height="35dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView3"
+        app:layout_constraintBottom_toTopOf="@+id/barcodeImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.429"
         app:layout_constraintStart_toStartOf="parent"

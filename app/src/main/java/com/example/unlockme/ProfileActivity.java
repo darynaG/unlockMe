@@ -27,6 +27,7 @@ import com.example.unlockme.data.LoginRepository;
 import com.example.unlockme.data.model.LoggedInUser;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -49,6 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
     private String dark_barcode_url;
     private String graph_url;
     private String processed_img_url;
+    public final static String BASE_URL = BuildConfig.BASE_URL;
 
 
     @Override
@@ -70,7 +72,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void getLinks() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://incenter.pythonanywhere.com/api/users/" + LoginRepository.getUser().getUserId() +  "/files";
+        final String url =BASE_URL + "/api/users/" + LoginRepository.getUser().getUserId() +  "/files";
         final Map<String, String> urls = new HashMap<String, String>();
 
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.GET, url,
@@ -96,8 +98,35 @@ public class ProfileActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                         Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
                     }
                 });
 
@@ -115,7 +144,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public boolean getImage() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://incenter.pythonanywhere.com/api/v1/users/" + LoginRepository.getUser().getUserId() +  "/image";
+        final String url = BASE_URL + "/api/v1/users/" + LoginRepository.getUser().getUserId() +  "/image";
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.GET, url,
                 new Response.Listener<NetworkResponse>() {
                     @Override
@@ -136,8 +165,34 @@ public class ProfileActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }                        Log.e("GotError",""+error.getMessage());
                     }
                 });
         queue.add(volleyMultipartRequest);
@@ -168,17 +223,19 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void openLearnPage(View view) {
-        openCardPager();
+//        ArrayList<PetsModel> models = new ArrayList<PetsModel>();
+//        models.add(new PetsModel(this.profile_picture_url,"png", "You image", "Original image you uploaded"));
+//        models.add(new PetsModel(this.graph_url,"svg", "Graph", "Graph made from your image"));
+//        models.add(new PetsModel(this.barcode_url,"png", "Barcode", "Light parts of generated barcode"));
+//
+//        openCardPager(models);
+        final Intent intent = new Intent(this, LearnTopicActivity.class);
+        startActivity(intent);
     }
 
-    public void openCardPager() {
+    public void openCardPager(ArrayList<PetsModel> models) {
         final Intent intent = new Intent(this, cardViewPager.class);
         Bundle bundle = new Bundle();
-        ArrayList<PetsModel> models = new ArrayList<PetsModel>();
-        Log.d("URLLLLSS", profile_picture_url);
-        models.add(new PetsModel(this.profile_picture_url,"png", "You image", "Original image you uploaded"));
-        models.add(new PetsModel(this.graph_url,"svg", "Graph", "Graph made from your image"));
-        models.add(new PetsModel(this.barcode_url,"png", "Barcode", "Light parts of generated barcode"));
         bundle.putParcelableArrayList("models", models);
         bundle.putString("cardTitle", "Algorithm of creating barcode");
         bundle.putString("cardPagerTitle", "Algorithm of creating barcode");
@@ -189,7 +246,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void getLinksToBarcodes(final Bitmap bitmap) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://incenter.pythonanywhere.com/api/barcode";
+        final String url = BASE_URL + "/api/barcode";
         final Intent intent = new Intent(this, ImageSlider.class);
 
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, url,
@@ -222,8 +279,34 @@ public class ProfileActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }                        Log.e("GotError",""+error.getMessage());
                     }
                 }) {
             @Override
@@ -245,14 +328,14 @@ public class ProfileActivity extends AppCompatActivity {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public void openSliderWithBarcodes(View view) {
+    public void openImageSliderWithBarcodes(View view) {
         getLinksToBarcodes(this.image);
     }
 
     public void openImageSlider(View view) {
         final Intent intent = new Intent(this, ImageSlider.class);
 
-        String url = "https://incenter.pythonanywhere.com/api/account/" + LoginRepository.getUser().getUserId() + "/images";
+        String url = BASE_URL + "/api/account/" + LoginRepository.getUser().getUserId() + "/images";
         Log.println(Log.DEBUG, "URL", url);
 
         Bundle bundle = new Bundle();
@@ -268,7 +351,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void uploadImage(final Bitmap bitmap) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://incenter.pythonanywhere.com/api/image" + LoginRepository.getUser().getUserId();
+        final String url = BASE_URL + "/api/image" + LoginRepository.getUser().getUserId();
         final Intent intent = new Intent(this, Images.class);
 
         VolleyMultipartRequest volleyMultipartRequest = new VolleyMultipartRequest(Request.Method.POST, url,
@@ -289,8 +372,34 @@ public class ProfileActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e("GotError",""+error.getMessage());
+                        if (error.networkResponse.data != null) {
+                            if (error.networkResponse.statusCode == 400) {
+                                try {
+                                    JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                    Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.d("MESSAGE", obj.getString("message"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (error.networkResponse.statusCode == 500) {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), "Database error! Please, try again later!", Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        JSONObject obj = new JSONObject(new String(error.networkResponse.data));
+                                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
+                                        Log.d("MESSAGE", obj.getString("message"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }                        Log.e("GotError",""+error.getMessage());
                     }
                 }) {
             @Override
@@ -308,7 +417,17 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void getImageGraph(View view) {
         final Intent intent = new Intent(this, Images.class);
+        if (graph_url !=null) {
+            if (graph_url.isEmpty()) {
+                getLinks();
+            }
+        }
         intent.putExtra(EXTRA_MESSAGE, graph_url);
+        startActivity(intent);
+    }
+
+    public void changeImage(View view) {
+        final Intent intent = new Intent(this, TakePhotoActivity.class);
         startActivity(intent);
     }
 }
